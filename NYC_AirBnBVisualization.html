@@ -120,7 +120,7 @@ var margin = {top: 10, right: 100, bottom: 60, left: 100},
               "translate(" + margin.left + "," + margin.top + ")")
 
 
-  d3.csv("/NYCAirBnB_DataSet.csv", function(data) {
+  d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_DataSet.csv", function(data) {
  // X axis
   var x = d3.scaleLinear()
       .domain([0, 1500])    
@@ -216,7 +216,7 @@ svg.append("text").attr("x", 60).attr("y", 20).text("Mode AIRBnB Property Price 
                 "translate(" + margin2.left + "," + margin2.top + ")")
   
   //Read the data
-      d3.csv("/NYCAirBnB_DataSet.csv", function(data) {
+      d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_DataSet.csv", function(data) {
     var x2 = d3.scaleLinear()
       .domain([0, 1500])
       .range([ 0, width2 ]);
@@ -314,7 +314,7 @@ svg.append("text").attr("x", 60).attr("y", 20).text("Mode AIRBnB Property Price 
 
 
             
-  d3.csv("NYCAirBnB_Barplot.csv", function(data) {
+  d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_Barplot.csv", function(data) {
   // Add X axis
   var x3 = d3.scaleLinear()
     .domain([0, 30500])
