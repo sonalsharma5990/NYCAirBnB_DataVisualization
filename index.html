@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+<style>
+div.static {
+  position: static;
+  border: 3px solid #2b0d5c;
+}
+div.c {
+  text-align: center;
+}
+.center {
+  margin: auto;
+  width: 1000px;
+  border: 3px solid #2b0d5c;
+  padding: 10px;
+}
+.center2 {
+  margin: auto;
+  width: 1000px;
+  border: 3px solid #2b0d5c;
+  padding: 10px;
+}
+.toolTip {
+  position: absolute;
+  display: none;
+  min-width: 80px;
+  height: auto;
+  background: none repeat scroll 0 0 #ffffff;
+  border: 1px solid #6F257F;
+  padding: 14px;
+  text-align: center;
+}
+p {text-align: center;}
+l {text-align: left;}
+r {text-align: right;}
+</style>
+</head>
+<body>
+  <h1><p style="font-family:Helvetica;color: red;">NYC AirBnB Property Price Analysis</p></h1>
+  <div class="center">
+  <p style="font-family:Helvetica;">
+  Since 2008, guests and hosts have used Airbnb to expand on traveling possibilities and present a more unique, personalized way of experiencing the world. 
+  NYC is one of the hottest tourist places in the world. The city is very busy and finding a property in the heart of NYC can be difficult and pricey. 
+  Property analysis of NYC Airbnb dataset, provides a holistic view about the Price of a property w.r.t the Type of property, Neighbourhoods to stay, reviews on AirBnB site, host history and much more.
+ </div>
+  <div id="div1" style="visibility: hidden"><div class="center2"><p style="font-family:Helvetica;">  
+  Histogram below we can see AirBnB property price distribution in NYC. We can interpret that most of the 
+  properties costs between $50 to $250 per night. Very fewer Properties are listed above $500 per night.
+  The average Property Price in NYC for stay is $120-170 per night.
+  <br><button onClick="document.getElementById('div2').scrollIntoView();">Next Visualization</button></br></p>
+  </p></div></div>
+  <div class="center">
+  <h3><p style="font-family:Helvetica;">NYC AirBnB Property Price Distribution Histogram</p></h3>
+  <div id="my_dataviz"></div>
+  </div>
+<div id="div2" style="visibility: hidden"><div class="center2"><p style="font-family:Helvetica;">  
+Since AirBnB is a very interactive customer site, customers leave reviews about the property which can be used by future customer for property selection.
+Below is an interesting visualization between property prices and no. of reviews on AirBnB. 
+It shows the maximum reeviews are recieved by properties ranging between $100-$200 per night, making them most popular ones.
+</br><button onClick="document.getElementById('div3').scrollIntoView();">Next Visualization</button>
+<button onClick="document.getElementById('div1').scrollIntoView();">Previous Visualization</button>
+</p></div></div>
+<div class="center">
+<h3><p style="font-family:Helvetica;">NYC AirBnB Property Price relative to Number of Reviews</p></h3>
+<div id="my_dataviz2"></div></div>
+<div id="div3" style="visibility: hidden"><div class="center2"><p style="font-family:Helvetica;">  
+Finally, the barplot compares the hottest Neighbourhoods in NYC. 
+We can clearly see that Manhattan, followed by Brooklyn has the maximum number of properties available on AirBnB.
+We can agree on this as they are the popular ones amongst the tourists.
+</br><button onClick="document.getElementById('div2').scrollIntoView();">Previous Visualization</button>
+</p></div></div>
+<div class="center">
+<h3><p style="font-family:Helvetica;">NYC AirBnB Property availability w.r.t Neighbourhood</p></h3>
+<div id="my_dataviz3"></div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div class = "c">Sonal Sharma | DataSet : <a href="https://www.kaggle.com/koustavhazra/airbnb-dataset">Kaggle AirBnB</a>
+<p><b>Note** I have performed data cleaning and outlier remover in order to make the dataset more understandable and to derive patterns.</b></p>
+ 
+</div>
+
+<script>
+var one = 0;
+
+function showIt() {
+  document.getElementById("div1").style.visibility = "visible";
+}
+setTimeout("showIt()", 3000); // after 1 sec
+function showIt2() {
+  document.getElementById("div2").style.visibility = "visible";
+}
+setTimeout("showIt2()", 5000); // after 1 sec
+function showIt3() {
+  document.getElementById("div3").style.visibility = "visible";
+}
+setTimeout("showIt3()", 8000); // after 1 sec
+
+
+// set margins of the graph
+var margin = {top: 10, right: 100, bottom: 60, left: 100},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")")
+
+
+  d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_DataSet.csv", function(data) {
+ // X axis
+  var x = d3.scaleLinear()
+      .domain([0, 1500])    
+      .range([0, width]);
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  var histogram = d3.histogram()
+      .value(function(d) { return d.Price; })  
+      .domain(x.domain()) 
+      .thresholds(x.ticks(100));
+
+
+  var bins = histogram(data);
+
+  // Y axis
+  var y = d3.scaleLinear()
+      .range([height, 0]);
+      y.domain([0, d3.max(bins, function(d) { return d.length; })]);   
+      svg.append("g")
+      .call(d3.axisLeft(y));
+
+  // X label price
+  svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width  - 300)
+    .attr("y", height +40)
+    .style("fill","#065232")
+    .style("font-weight","bold")
+    .text("Property Prices per Night");
+  // Y label Frequency 
+  svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", -50)
+    .attr("x", -160)
+    .attr("transform", "rotate(-90)")
+    .style("fill","#065232")
+    .style("font-weight","bold")
+    .text("Frequency");
+
+  // append the bar rectangles to the svg element
+  svg.selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+        .attr("x", 1)
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+        .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
+		.transition()
+		.duration(4000)
+        .attr("height", function(d) { return height - y(d.length); })
+        .style("fill", "#a6d854")
+
+svg.append('line')
+  .attr('x1', 60)
+  .attr('y1', 300)
+  .attr('x2', 600)
+  .attr('y2', 100)
+  .attr('stroke', 'red')
+svg.append("text").attr("x", 530).attr("y", 90).text("Average AIRBnB Property Price : $120-$170").style("font-size", "15px")
+
+svg.append('line')
+  .attr('x1', 50)
+  .attr('y1', 50)
+  .attr('x2', 50)
+  .attr('y2', 50)
+  .attr('stroke', 'red')
+svg.append("text").attr("x", 60).attr("y", 20).text("Mode AIRBnB Property Price : $150").style("font-size", "15px")
+
+
+
+});
+</script>
+
+<script>
+
+  var margin2 = {top: 30, right: 100, bottom: 60, left: 100},
+      width2 = 1000 - margin2.left - margin2.right,
+      height2 = 500 - margin2.top - margin2.bottom;
+      // append the svg object to the body of the page
+      var svg2 = d3.select("#my_dataviz2")
+        .append("svg")
+          .attr("width", width2 + margin2.left + margin2.right)
+          .attr("height", height2 + margin2.top + margin2.bottom)
+          .call(d3.zoom().on("zoom", function () {
+         svg2.attr("transform", d3.event.transform)
+      }))
+        .append("g")
+          .attr("transform",
+                "translate(" + margin2.left + "," + margin2.top + ")")
+  
+  //Read the data
+      d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_DataSet.csv", function(data) {
+    var x2 = d3.scaleLinear()
+      .domain([0, 1500])
+      .range([ 0, width2 ]);
+    svg2.append("g")
+      .attr("class", "myXaxis")   // Note that here we give a class to the X axis, to be able to call it later and modify it
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(d3.axisBottom(x2))
+      .attr("opacity", "0")
+      
+  
+    var y2 = d3.scaleLinear()
+      .domain([0, 300])
+      .range([ height2, 0]);
+    svg2.append("g")
+      .call(d3.axisLeft(y2));
+  
+    svg2.append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "end")
+      .attr("x", width  - 330)
+      .attr("y", height + 20)
+      .style("fill","#065232")
+      .style("font-weight","bold")
+      .text("Property Prices per Night");
+  
+    svg2.append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "end")
+      .attr("y", -50)
+      .attr("x", -130)
+      .attr("transform", "rotate(-90)")
+      .style("fill","#065232")
+      .style("font-weight","bold")
+      .text("Number of Reviews");
+
+  
+    // Add dots
+    svg2.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return x2(d.Price); } )
+        .attr("cy", function (d) { return y2(d.num_reviews); } )
+        .attr("r", 1.5)
+        .style("fill", "#a6d854")
+  
+    // new X axis
+    x2.domain([0, 1000])
+    svg2.select(".myXaxis")
+      .transition()
+      .duration(2000)
+      .attr("opacity", "1")
+      .call(d3.axisBottom(x2));
+  
+    svg2.selectAll("circle")
+      .transition()
+      .delay(function(d,i){return(i*3)})
+      .duration(200)
+      .attr("cx", function (d) { return x2(d.Price); } )
+      .attr("cy", function (d) { return y2(d.num_reviews); } )
+    .attr("size", "29")
+      .attr("r", 4)
+  
+  svg2.append('line')
+  .attr('x1', 80)
+  .attr('y1', 370)
+  .attr('x2', 600)
+  .attr('y2', 100)
+    .attr('stroke', 'red')
+  svg2.append("text").attr("x", 620).attr("y", 100).text("Average Mileage & Price").style("font-size", "15px")
+
+  svg2.append("text").attr("x", 600).attr("y", 200).text("Please zoom with mouse wheel.").style("font-size", "15px").attr("alignment-baseline","middle")
+
+  
+  
+  })
+  
+  </script>
+
+<script>
+
+  var margin3 = {top: 10, right: 100, bottom: 60, left: 100},
+      width3 = 1000 - margin3.left - margin3.right,
+      height3 = 500 - margin3.top - margin3.bottom;
+  
+  var svg3 = d3.select("#my_dataviz3")
+    .append("svg")
+      .attr("width", width3 + margin3.left + margin3.right)
+      .attr("height", height3 + margin3.top + margin3.bottom)
+ 
+    .append("g")
+      .attr("transform",
+            "translate(" + margin3.left + "," + margin3.top + ")");
+
+
+            
+  d3.csv("https://raw.githubusercontent.com/sonalsharma5990/NYCAirBnB_DataVisualization/main/NYCAirBnB_Barplot.csv", function(data) {
+  // Add X axis
+  var x3 = d3.scaleLinear()
+    .domain([0, 30500])
+    .range([ 0, width3]);
+  svg3.append("g")
+    .attr("transform", "translate(0," + height3 + ")")
+    .call(d3.axisBottom(x3))
+    .selectAll("text")
+      .attr("transform", "translate(-10,0)rotate(-45)")
+      .style("text-anchor", "end");
+
+  var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+    
+
+  // Y axis
+  var y3 = d3.scaleBand()
+    .range([ 0, height3 ])
+    .domain(data.map(function(d) { return d.Neighbourhood; }))
+    .padding(.1);
+  svg3.append("g")
+    .call(d3.axisLeft(y3))
+
+
+  // X label price
+  svg3.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width  - 320)
+    .attr("y", height +50)
+    .style("fill","#065232")
+    .style("font-weight","bold")
+    .text("Number of Available Properties");
+  // Y label Frequency 
+  svg3.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", -50)
+    .attr("x", -160)
+    .attr("transform", "rotate(-90)")
+    .style("fill","#065232")
+    .style("font-weight","bold")
+    .text("Popular Neighbourhood");  
+
+
+    var tooltip = d3.select("#my_dataviz3")
+      .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "black")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("color", "white")
+  
+    var showTooltip = function(d) {
+      tooltip
+        .transition()
+        .duration(200)
+      tooltip
+        .style("opacity", 1)
+        .html("NYC Neighbourhood : " + d.Neighbourhood
+        + ",  Property Available: " + d.Count )
+        .style("left", "200px")
+        .style("top", "200px")
+    }
+  
+    var hideTooltip = function(d) {
+      tooltip
+        .transition()
+        .duration(200)  
+        .style("opacity", 0)
+    } 
+
+  //Bars
+  svg3.selectAll("myRect")
+    .data(data)
+    .enter()
+    .append("rect")
+    .attr("x", x3(0) )
+    .attr("y", function(d) { return y3(d.Neighbourhood); })
+    .attr("width", function(d) { return x3(d.Count); })
+    .attr("height", y3.bandwidth() )
+    .attr("fill", "#a6d854")
+    .on("mouseover", showTooltip )
+  
+      .on("mouseleave", hideTooltip )
+    
+})
+
+</script>
+
+
+</body>
+</html>
